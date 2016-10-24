@@ -37,14 +37,19 @@ class Messenger extends Adapter
             @receive(message) if message?
 
     _sendMsg: (context, msg) ->
+        if typeof msg == 'string'
+            # Facebook Messenger Platform only allows up to 320 characters
+            # Use a plugin like https://github.com/ClaudeBot/hubot-longtext
+            # to handle long messages...
+            message = {
+                text: msg.substring(0, 320)
+            }
+        else if typeof msg == 'object'
+            message = msg
         data = JSON.stringify({
             recipient:
                 id: context.user.id
-            message:
-                # Facebook Messenger Platform only allows up to 320 characters
-                # Use a plugin like https://github.com/ClaudeBot/hubot-longtext
-                # to handle long messages...
-                text: msg.substring(0, 320)
+            message
         })
         @robot.http("#{@apiURL}/me/messages?access_token=#{@accessToken}")
             .header('Content-Type', 'application/json')
@@ -53,7 +58,10 @@ class Messenger extends Adapter
                     return @robot.logger.error "hubot-messenger-bot: error sending message - #{body} #{httpRes.statusCode} (#{err})"
 
     send: (envelope, strings...) ->
-        @_sendMsg envelope, strings.join "\n"
+        if typeof strings[0] == 'string'
+            @_sendMsg envelope, strings.join "\n"
+        else if typeof strings[0] == 'object'
+            @_sendMsg envelope, strings[0]
 
     reply: (envelope, strings...) ->
         @_sendMsg envelope, envelope.user.name + ": " + strings.join "\n #{envelope.user.name}: "
