@@ -31,8 +31,8 @@ class Messenger extends Adapter
             return unless (msg.message.text? || msg.message.attachments?)
         if msg.postback
             return unless (msg.postback.payload?)
-        console.log('message.keys', Object.keys(msg.message));
-        console.log('postback keys', msg.postback && Object.keys(msg.postback));
+        # console.log('message.keys', msg.message && Object.keys(msg.message));
+        # console.log('postback keys', msg.postback && Object.keys(msg.postback));
         if msg.message
             console.log('quick_reply', msg.message.quick_reply && JSON.stringify(msg.message.quick_reply, null, 4));
 
