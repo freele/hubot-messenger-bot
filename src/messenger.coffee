@@ -43,9 +43,10 @@ class Messenger extends Adapter
         if msg.postback
             _text = JSON.stringify(msg.postback.payload)
             _mid = ''
-        if msg.message.quick_reply
-            _text = JSON.stringify(msg.message.quick_reply.payload)
-            _mid = ''
+        if msg.message
+            if msg.message.quick_reply
+                _text = JSON.stringify(msg.message.quick_reply.payload)
+                _mid = ''
         _sender = msg.sender.id
         _recipient = msg.recipient.id
         @_createUser _sender, _recipient, (user) =>
