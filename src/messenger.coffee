@@ -31,13 +31,20 @@ class Messenger extends Adapter
             return unless (msg.message.text? || msg.message.attachments?)
         if msg.postback
             return unless (msg.postback.payload?)
-        console.log('msg', Object.keys(msg.message || msg.postback));
+        console.log('message.keys', Object.keys(msg.message));
+        console.log('postback keys', msg.postback && Object.keys(msg.postback));
+        if msg.message
+            console.log('quick_reply', msg.message.quick_reply && JSON.stringify(msg.message.quick_reply, null, 4));
+
         if msg.message
             _text = msg.message.text || JSON.stringify(msg.message.attachments)
             _mid = msg.message.mid
             console.log('_mid', _mid);
         if msg.postback
             _text = JSON.stringify(msg.postback.payload)
+            _mid = ''
+        if msg.message.quick_reply
+            _text = JSON.stringify(msg.message.quick_reply.payload)
             _mid = ''
         _sender = msg.sender.id
         _recipient = msg.recipient.id
