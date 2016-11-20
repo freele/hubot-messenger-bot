@@ -31,15 +31,17 @@ class Messenger extends Adapter
             return unless (msg.message.text? || msg.message.attachments?)
         if msg.postback
             return unless (msg.postback.payload?)
+        # console.log('msg keys', Object.keys(msg));
         # console.log('message.keys', msg.message && Object.keys(msg.message));
         # console.log('postback keys', msg.postback && Object.keys(msg.postback));
-        if msg.message
-            console.log('quick_reply', msg.message.quick_reply && JSON.stringify(msg.message.quick_reply, null, 4));
+        # console.log('sender_action keys', msg.sender_action && Object.keys(msg.sender_action));
+        # if msg.message
+        #     console.log('quick_reply', msg.message.quick_reply && JSON.stringify(msg.message.quick_reply, null, 4));
 
         if msg.message
             _text = msg.message.text || JSON.stringify(msg.message.attachments)
             _mid = msg.message.mid
-            console.log('_mid', _mid);
+            # console.log('_mid', _mid);
         if msg.postback
             _text = JSON.stringify(msg.postback.payload)
             _mid = ''
@@ -47,6 +49,7 @@ class Messenger extends Adapter
             if msg.message.quick_reply
                 _text = JSON.stringify(msg.message.quick_reply.payload)
                 _mid = ''
+
         _sender = msg.sender.id
         _recipient = msg.recipient.id
         @_createUser _sender, _recipient, (user) =>
@@ -63,11 +66,19 @@ class Messenger extends Adapter
             }
         else if typeof msg == 'object'
             message = msg
-        data = JSON.stringify({
-            recipient:
-                id: context.user.id
-            message
-        })
+
+        if msg.sender_action
+            data = JSON.stringify({
+                recipient:
+                    id: context.user.id
+                sender_action: msg.sender_action
+            })
+        else
+            data = JSON.stringify({
+                recipient:
+                    id: context.user.id
+                message
+            })
         @robot.http("#{@apiURL}/me/messages?access_token=#{@accessToken}")
             .header('Content-Type', 'application/json')
             .post(data) (err, httpRes, body) =>
