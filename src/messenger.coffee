@@ -67,19 +67,29 @@ class Messenger extends Adapter
         else if typeof msg == 'object'
             message = msg
 
+        apiUrl = "#{@apiURL}/me/messages?access_token=#{@accessToken}"
+
         if msg.sender_action
             data = JSON.stringify({
                 recipient:
                     id: context.user.id
                 sender_action: msg.sender_action
             })
+        else if msg.setting_type == 'call_to_actions'
+            console.log('SEND CALL TO ACTIONS')
+            console.log('msg keys', Object.keys(msg));
+            # msg.recipient = { id: context.user.id }
+            data = JSON.stringify(msg)
+            apiUrl = "#{@apiURL}/me/thread_settings?access_token=#{@accessToken}"
         else
             data = JSON.stringify({
                 recipient:
                     id: context.user.id
                 message
             })
-        @robot.http("#{@apiURL}/me/messages?access_token=#{@accessToken}")
+
+        console.log('DATA', data);
+        @robot.http(apiUrl)
             .header('Content-Type', 'application/json')
             .post(data) (err, httpRes, body) =>
                 if err or httpRes.statusCode isnt 200
