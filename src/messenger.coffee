@@ -43,7 +43,7 @@ class Messenger extends Adapter
             _mid = msg.message.mid
             # console.log('_mid', _mid);
         if msg.postback
-            _text = JSON.stringify(msg.postback.payload)
+            _text = msg.postback.payload
             _mid = ''
         if msg.message
             if msg.message.quick_reply
