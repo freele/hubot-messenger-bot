@@ -43,9 +43,11 @@ class Messenger extends Adapter
             _mid = msg.message.mid
             # console.log('_mid', _mid);
         if msg.postback
+            console.log('postback.payload', msg.postback.payload);
             _text = msg.postback.payload
             _mid = ''
         if msg.message
+            # console.log('QUICK REPLY PAYLOAD:', msg.message.quick_reply.payload)
             if msg.message.quick_reply
                 _text = JSON.stringify(msg.message.quick_reply.payload)
                 _mid = ''
@@ -57,6 +59,7 @@ class Messenger extends Adapter
             @receive(message) if message?
 
     _sendMsg: (context, msg) ->
+        # console.log('SENDMSG0')
         if typeof msg == 'string'
             # Facebook Messenger Platform only allows up to 320 characters
             # Use a plugin like https://github.com/ClaudeBot/hubot-longtext
@@ -75,10 +78,10 @@ class Messenger extends Adapter
                     id: context.user.id
                 sender_action: msg.sender_action
             })
-        else if msg.setting_type == 'call_to_actions'
-            console.log('SEND CALL TO ACTIONS')
-            console.log('msg keys', Object.keys(msg));
-            # msg.recipient = { id: context.user.id }
+        else if [
+            'call_to_actions'
+            'domain_whitelisting'
+            ].indexOf(msg.setting_type) != -1
             data = JSON.stringify(msg)
             apiUrl = "#{@apiURL}/me/thread_settings?access_token=#{@accessToken}"
         else
@@ -88,10 +91,10 @@ class Messenger extends Adapter
                 message
             })
 
-        console.log('DATA', data);
+        # console.log('DATA', data)
         @robot.http(apiUrl)
             .header('Content-Type', 'application/json')
-            .post(data) (err, httpRes, body) =>
+            .post(data) (err, httpRes = {}, body) =>
                 if err or httpRes.statusCode isnt 200
                     return @robot.logger.error "hubot-messenger-bot: error sending message - #{body} #{httpRes.statusCode} (#{err})"
 
